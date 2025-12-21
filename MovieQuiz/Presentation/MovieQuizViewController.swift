@@ -4,6 +4,9 @@ final class MovieQuizViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        imageView.layer.cornerRadius = 20
+        show(quiz: convert(model: questions[currentQuestionIndex]))
     }
     
     @IBOutlet private var imageView: UIImageView!
@@ -11,7 +14,7 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet private var counterLabel: UILabel!
     
     
-    struct QuizQuestion {
+    private struct QuizQuestion {
         let image: String
         let text:String
         let correctAnswer:Bool
@@ -29,7 +32,7 @@ final class MovieQuizViewController: UIViewController {
         let buttonText: String
     }
     
-    private var currentQuestionIndex:Int = 0
+    private var currentQuestionIndex: Int = 0
     private var correctAnswers = 0
     
     private let questions: [QuizQuestion] = [
@@ -119,6 +122,8 @@ final class MovieQuizViewController: UIViewController {
             
             show(quiz: viewModel)
         }
+        
+        imageView.layer.borderWidth = 0
     }
     
     private func show(quiz result: QuizResultsViewModel) {
@@ -136,9 +141,8 @@ final class MovieQuizViewController: UIViewController {
             self.show(quiz: viewModel)
         }
         alert.addAction(action)
-        self.present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
-   
     
     @IBAction func yesButtonClicked(_ sender: UIButton) {
         let currentQuestion = questions[currentQuestionIndex]
