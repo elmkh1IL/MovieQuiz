@@ -8,6 +8,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private let questionsAmount: Int = 10
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
+    private var alertPresenter = AlertPresenter()
+    private let statisticService = StatisticService()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -56,6 +58,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             let text = correctAnswers == questionsAmount ?
             "Поздравляем, вы ответили на 10 из 10!" :
             "Вы ответили на \(correctAnswers) из 10, попробуйте еще раз!"
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
+            
             let viewModel = QuizResultsViewModel (
                 title: "Этот раунд окончен!",
                 text: text,
@@ -63,28 +67,30 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             show(quiz: viewModel)
         } else {
             currentQuestionIndex += 1
-             
             self.questionFactory?.requestNextQuestion()
         }
         imageView.layer.borderWidth = 0
     }
     
-    private func show(quiz result: QuizResultsViewModel) {
-        let alert = UIAlertController(
-            title: result.title,
-            message: result.text,
-            preferredStyle: .alert)
+    func show(quiz result: QuizResultsViewModel) {
         
-        let action = UIAlertAction(title: result.buttonText, style: .default) { [weak self] _ in
+        let message = "Вы ответили на \(correctAnswers)/10\nКоличество сыгранных квизов: \(statisticService.gamesCount)\nРекорд: \(statisticService.bestGame.correct)/\(statisticService.bestGame.total) (\(statisticService.bestGame.date.dateTimeString))\nСредняя точность: \(String(format: "%.2f", statisticService.totalAccuracy))%"
+        let model = AlertModel(
+            title: result.title,
+            message: message,
+            buttonText: result.buttonText
+        ) { [weak self] in
             guard let self = self else { return }
-            
-            self.currentQuestionIndex = 0
-            self.correctAnswers = 0
-            self.questionFactory?.requestNextQuestion()
+                
+                self.currentQuestionIndex = 0
+                self.correctAnswers = 0
+                self.questionFactory?.requestNextQuestion()
+            }
+            alertPresenter.show(in: self, model: model)
         }
-        alert.addAction(action)
-        present(alert, animated: true, completion: nil)
-    }
+        
+            
+           
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
