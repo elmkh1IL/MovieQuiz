@@ -2,6 +2,15 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
   
+    // MARK: - IBOotlet
+    
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var textLabel: UILabel!
+    @IBOutlet private weak var counterLabel: UILabel!
+    
+    // MARK: - Properties
+    
     private var currentQuestionIndex: Int = 0
     private var correctAnswers = 0
     
@@ -9,21 +18,26 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?
     private var currentQuestion: QuizQuestion?
     private var alertPresenter = AlertPresenter()
-    private let statisticService = StatisticService()
+    private var statisticService = StatisticService()
+    
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let questionFactory = QuestionFactory()
-        questionFactory.delegate = self
-        self.questionFactory = questionFactory
-        questionFactory.requestNextQuestion()
         imageView.layer.cornerRadius = 20
+        setupQuestionFactory()
+    }
+    // MARK: - Setup
+    
+    private func setupQuestionFactory() {
+        let questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
+        statisticService = StatisticService()
+       
+        showLoadingIndicator()
+        questionFactory.loadData()
     }
     
-    @IBOutlet private var imageView: UIImageView!
-    @IBOutlet private var textLabel: UILabel!
-    @IBOutlet private var counterLabel: UILabel!
-    
+   // MARK: - UI
 
     private func show(quiz step: QuizStepViewModel) {
         imageView.image = step.image
@@ -31,14 +45,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         counterLabel.text = step.questionNumber
     }
     
+    // MARK: - Quiz Logic
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        let questionStep = QuizStepViewModel (
-            image: UIImage(named: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)"
-            )
-        return questionStep
+       return QuizStepViewModel(
+        image: UIImage(data: model.image) ?? UIImage(),
+        question: model.text,
+        questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
     
     private func showAnswerResult(isCorrect: Bool) {
@@ -88,10 +101,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             }
             alertPresenter.show(in: self, model: model)
         }
-        
-            
-           
-    
+   
+    // MARK: - QuestionFactoryDelegate
     func didReceiveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
             return
@@ -101,9 +112,49 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
        
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
-            
         }
     }
+   
+    // MARK: - LoadingIndicator
+    
+    private func showLoadingIndicator() {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+    }
+    
+    private func hideLoadingIndicator() {
+        activityIndicator.stopAnimating()
+        activityIndicator.isHidden = true
+    }
+    
+    // MARK: - NetworkError
+    
+    private func showNetworkError(message: String) {
+        hideLoadingIndicator()
+        
+        let model = AlertModel(title: "Ошибка", message: message, buttonText: "Попробуйте еще раз") { [weak self] in
+            guard let self = self else { return }
+            
+            self.currentQuestionIndex = 0
+            self.correctAnswers = 0
+            
+            self.questionFactory?.requestNextQuestion()
+        }
+        alertPresenter.show(in: self, model: model)
+    }
+        
+    // MARK: - LoadDataFromServer
+    
+    func didLoadDataFromServer() {
+        activityIndicator.isHidden = true
+        questionFactory?.requestNextQuestion()
+    }
+    
+    func didFailToLoadData(with error: any Error) {
+        showNetworkError(message: error.localizedDescription)
+    }
+    
+    // MARK: - Action
     
     @IBAction func yesButtonClicked(_ sender: UIButton) {
         guard let currentQuestion = currentQuestion else {

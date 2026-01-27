@@ -5,8 +5,8 @@
 //  Created by xxx on 05.01.2026.
 //
 
-import Foundation
 import UIKit
+
 final class AlertPresenter {
     func show(in vc: UIViewController, model: AlertModel) {
         let alert = UIAlertController(
