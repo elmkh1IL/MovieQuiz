@@ -105,17 +105,27 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="Y8G-fp-85v">
+                                <rect key="frame" x="147.33333333333334" y="435" width="107.33333333333334" height="60"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="60" id="5nY-By-bOy"/>
+                                    <constraint firstAttribute="width" constant="107.33" id="f28-Q9-hkt"/>
+                                </constraints>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="top" secondItem="JYI-uK-sJS" secondAttribute="top" constant="10" id="0D8-tq-Bcp"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="JYI-uK-sJS" secondAttribute="bottom" id="HOO-Cu-oo4"/>
+                            <constraint firstItem="Y8G-fp-85v" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="cN5-NF-QgO"/>
                             <constraint firstItem="JYI-uK-sJS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="fof-HA-nuc"/>
+                            <constraint firstItem="Y8G-fp-85v" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="g9I-oi-dsZ"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="JYI-uK-sJS" secondAttribute="trailing" constant="20" id="zHu-y5-fNC"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="Y8G-fp-85v" id="Avf-2B-XbD"/>
                         <outlet property="counterLabel" destination="tJz-OT-Bau" id="QtQ-qA-9cI"/>
                         <outlet property="imageView" destination="GKp-ph-s5X" id="hLE-Xw-e8O"/>
                         <outlet property="textLabel" destination="oWU-8C-JQL" id="wqw-nX-pp1"/>
