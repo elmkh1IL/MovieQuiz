@@ -19,7 +19,7 @@ final class MovieQuizUITests: XCTestCase {
         
         continueAfterFailure = false
         
-        let indexLable = app.staticTexts["Index"]
+        let indexLabel = app.staticTexts["Index"]
     }
     override func tearDownWithError() throws {
         try super.tearDownWithError()
@@ -67,6 +67,11 @@ final class MovieQuizUITests: XCTestCase {
         
         let secondPoster = app.images["Poster"]
         let secondPosterData = secondPoster.screenshot().pngRepresentation
+        
+        let indexLabel = app.staticTexts["Index"]
+        
+        XCTAssertNotEqual(firstPosterData, secondPosterData)
+        XCTAssertEqual(indexLabel.label, "2/10")
     }
     
     func testAlert() {
@@ -77,7 +82,7 @@ final class MovieQuizUITests: XCTestCase {
             sleep(3)
         }
         
-        let alert = app.alerts["Game results"]
+        let alert = app.alerts["Этот раунд закончен!"]
         
         XCTAssertTrue(alert.exists)
         XCTAssert(alert.label == "Этот раунд закончен!")
@@ -92,7 +97,7 @@ final class MovieQuizUITests: XCTestCase {
             sleep(3)
         }
         
-        let alert = app.alerts["Game results"]
+        let alert = app.alerts["Этот раунд закончен!"]
         alert.buttons.firstMatch.tap()
         
         sleep(3)
